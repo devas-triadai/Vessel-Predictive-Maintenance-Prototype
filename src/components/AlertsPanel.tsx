@@ -76,7 +76,21 @@ export const AlertsPanel: React.FC<AlertsPanelProps> = ({ alerts, onResolve, onA
               >
                 <div className="flex items-start gap-3">
                   {alert.level === 'danger' && !alert.resolved ? (
-                    <AlertOctagon className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        rotate: [0, -10, 10, -10, 0]
+                      }}
+                      transition={{ 
+                        duration: 0.5, 
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        ease: "easeInOut"
+                      }}
+                      className="shrink-0 mt-0.5"
+                    >
+                      <AlertOctagon className="w-5 h-5 text-rose-500" />
+                    </motion.div>
                   ) : alert.resolved ? (
                     <CheckCircle className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
                   ) : (

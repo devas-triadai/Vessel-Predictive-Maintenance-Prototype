@@ -1,6 +1,6 @@
 {
-  "name": "ICG Vessel Predictive Maintenance Dashboard",
-  "description": "AI-based predictive maintenance and monitoring system for Fast Patrol Vessel (FPV) machinery, featuring real-time telemetry simulation, health scoring, and anomaly detection.",
+  "name": "ICG Predictive Maintenance",
+  "description": "Predictive maintenance and monitoring system for vessel machinery.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

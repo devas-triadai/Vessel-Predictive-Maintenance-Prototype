@@ -10,19 +10,13 @@ export const HeatmapWidget: React.FC<HeatmapWidgetProps> = ({ machines }) => {
   // but simulates historical activity.
   const allHistory = useMemo(() => {
     return machines.map(m => {
-      let seed = m.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const random = () => {
-        const x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-      };
+      const data = Array(24).fill(0);
       
-      const data = [];
-      for (let i = 0; i < 24; i++) {
-          let val = Math.floor(random() * 1.5);
-          // 15% chance of a spike
-          if (random() > 0.85) val += Math.floor(random() * 3);
-          data.push(val);
+      // Inject one anomaly for "Main Engine 2" somewhere in the past
+      if (m.name.toLowerCase() === 'main engine 2') {
+         data[8] = 2; // Medium severity anomaly at T-16H
       }
+
       return { id: m.id, name: m.name, history: data };
     });
   }, [machines.length]);

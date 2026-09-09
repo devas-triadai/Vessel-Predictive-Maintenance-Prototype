@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MachineState } from '../types';
-import { ArrowLeft, Activity, Gauge, Zap, Thermometer, Info, ShieldAlert, Cpu, Wrench, Calendar, Plus, Settings2, Save } from 'lucide-react';
+import { ArrowLeft, Activity, Gauge, Zap, Thermometer, Info, ShieldAlert, Cpu, Wrench, Calendar, Plus, Settings2, Save, Download, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
@@ -52,6 +52,38 @@ export const MachineDetail: React.FC<MachineDetailProps> = ({ machine, onBack, o
     setTimeout(() => setSavingThresholds(false), 1500);
   };
 
+  const handleExport = () => {
+    const reportList = [
+      `MACHINE DIAGNOSTIC REPORT: ${machine.name.toUpperCase()}`,
+      `Date: ${new Date().toLocaleString()}`,
+      `Status: ${machine.status} | Health Score: ${machine.healthScore.toFixed(1)}/100`,
+      `Estimated Remaining Life (ETA): ${Math.round((machine.healthScore / 100) * 15000)} Hours`,
+      `Alert Level: ${machine.alertLevel.toUpperCase()}`,
+      `-------------------------------------------------`,
+      `Telemetry Data:`
+    ];
+    
+    Object.entries(machine.parameters).forEach(([key, val]) => {
+      if (typeof val === 'number') {
+        reportList.push(`${key.toUpperCase()}: ${val.toFixed(2)}`);
+      }
+    });
+
+    reportList.push(`-------------------------------------------------`);
+    reportList.push(`Maintenance History:`);
+    maintenanceLogs.forEach(log => {
+      reportList.push(`[${log.date}] - ${log.type}: ${log.desc}`);
+    });
+
+    const blob = new Blob([reportList.join("\n")], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${machine.name.replace(/\s+/g, '_')}_diagnostic_report.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     if (isStopped || machine.parameters.vibration === undefined) return;
     
@@ -86,6 +118,13 @@ export const MachineDetail: React.FC<MachineDetailProps> = ({ machine, onBack, o
           </div>
         </div>
         <div className="flex items-center space-x-4">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-3 py-1.5 rounded text-xs font-bold font-mono bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/30 transition-colors uppercase"
+            title="Download Report"
+          >
+            <Download className="w-3.5 h-3.5" /> Export Report
+          </button>
           {!isStopped && onInjectAnomaly && (
             <div className="flex gap-2">
               <button 
@@ -135,6 +174,16 @@ export const MachineDetail: React.FC<MachineDetailProps> = ({ machine, onBack, o
               machine.healthScore >= 50 ? 'text-amber-500' : 'text-rose-500'
             }`}>
               {isStopped ? '-' : Math.round(machine.healthScore)}/100
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-slate-500 font-mono text-xs flex items-center gap-1.5"><Clock className="w-3.5 h-3.5"/> EST. REMAINING LIFE</span>
+            <span className={`text-sm font-bold font-mono tracking-wider ${
+              machine.healthScore >= 90 ? 'text-emerald-500' : 
+              machine.healthScore >= 70 ? 'text-amber-500' : 'text-rose-500'
+            }`}>
+              {isStopped ? '-' : `${Math.round((machine.healthScore / 100) * 15000).toLocaleString()} HRS`}
             </span>
           </div>
 

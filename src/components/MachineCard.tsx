@@ -197,6 +197,15 @@ export const MachineCard: React.FC<MachineCardProps> = ({ machine, onInjectAnoma
               <span className="text-slate-200">{isStopped ? 0 : machine.parameters.thrust.toFixed(0)}</span>
             </div>
           )}
+          <div className="flex justify-between mt-2 pt-2 border-t border-slate-800">
+             <span className="text-slate-500 uppercase">ETA</span>
+             <span className={`font-bold ${
+               machine.healthScore >= 90 ? 'text-emerald-500' : 
+               machine.healthScore >= 70 ? 'text-amber-500' : 'text-rose-500'
+             }`}>
+               {isStopped ? '-' : `${Math.round((machine.healthScore / 100) * 15000).toLocaleString()}h`}
+             </span>
+          </div>
         </div>
       </div>
 

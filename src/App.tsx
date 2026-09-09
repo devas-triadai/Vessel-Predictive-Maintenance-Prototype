@@ -6,7 +6,7 @@ import { MachineDetail } from './components/MachineDetail';
 import { Simulator } from './simulator';
 import { AlarmSynth } from './audio';
 import { SystemData } from './types';
-import { Shield, Activity, HardDrive, Users, Moon, Sun } from 'lucide-react';
+import { Shield, Activity, HardDrive, Users, Moon, Sun, Download } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -24,6 +24,33 @@ export default function App() {
     document.addEventListener('click', unlockAudio, { once: true });
     return () => document.removeEventListener('click', unlockAudio);
   }, []);
+
+  const handleExportFleetReport = () => {
+    const reportList = [
+      `ICG VESSEL FLEET STATUS REPORT`,
+      `Date: ${new Date().toLocaleString()}`,
+      `Overall Systems Active: ${data.machines.filter(m => m.status === 'Running').length} / ${data.machines.length}`,
+      `Total Alerts (Unresolved): ${data.alerts.filter(a => !a.resolved).length}`,
+      `=================================================`,
+    ];
+
+    data.machines.forEach(m => {
+      reportList.push(`MACHINE: ${m.name}`);
+      reportList.push(`Status: ${m.status} | Health Score: ${m.healthScore.toFixed(1)}/100`);
+      reportList.push(`Est. RUL: ${Math.round((m.healthScore / 100) * 15000)} Hrs`);
+      reportList.push(`Condition: ${m.alertLevel.toUpperCase()}`);
+      reportList.push(`-------------------------------------------------`);
+    });
+
+    const blob = new Blob([reportList.join("\n")], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Fleet_Diagnostic_Report_${new Date().getTime()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
 
   useEffect(() => {
     // Initial fetch
@@ -120,6 +147,13 @@ export default function App() {
         
         <div className="flex items-center space-x-4">
           <button
+            onClick={handleExportFleetReport}
+            className="flex items-center gap-2 p-1.5 px-3 rounded border border-indigo-500/30 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 transition-colors uppercase text-[10px] font-bold font-mono"
+            title="Download Fleet Report"
+          >
+            <Download className="w-3.5 h-3.5" /> Fleet Report
+          </button>
+          <button
             onClick={() => setIsLightMode(!isLightMode)}
             className="p-1.5 rounded border border-slate-700 bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
             title="Toggle Theme"
@@ -161,7 +195,6 @@ export default function App() {
               />
             ) : (
               <div className="max-w-6xl mx-auto space-y-8 h-full" key="grid">
-                <HeatmapWidget machines={data.machines} />
                 {/* Group machines by category to make it scannable */}
                 {['Main Engine', 'Gear Box', 'Waterjet Propeller', 'DG / DA', 'HP Compressor'].map(category => {
                   const categoryMachines = data.machines.filter(m => m.category === category);
@@ -187,6 +220,7 @@ export default function App() {
                     </section>
                   )
                 })}
+                <HeatmapWidget machines={data.machines} />
               </div>
             )}
           </AnimatePresence>
