@@ -1,6 +1,6 @@
 {
-  "name": "ICG Predictive Maintenance",
-  "description": "Predictive maintenance and monitoring system for vessel machinery.",
+  "name": "Naval Vessel Engine & Telemetry Predictive Maintenance System",
+  "description": "Predictive maintenance and telemetry monitoring system for naval vessel machinery.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
